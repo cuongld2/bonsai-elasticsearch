@@ -5,10 +5,10 @@
     <div class="container">
 
       <!--Navbar-->
-      <!-- <nav class="navbar navbar-expand-lg navbar-dark mdb-color lighten-3 mt-3 mb-5"> -->
+      <nav class="navbar navbar-expand-lg navbar-dark mdb-color lighten-3 mt-3 mb-5">
 
         <!-- Navbar brand -->
-        <!-- <span class="navbar-brand">Categories:</span> -->
+        {% comment %} <span class="navbar-brand">Categories:</span> {% endcomment %}
 
         <!-- Collapse button -->
         <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
@@ -39,11 +39,11 @@
           </ul> -->
           <!-- Links -->
 
-          <!-- <form class="form-inline">
-            <div class="md-form my-0">
-              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            </div>
-          </form> -->
+          <form method='GET'>
+            <input type='text' name='q' value='{{ request.GET.q }}'>
+            <input class="button" type='submit' value="Search Products">
+          </form>
+          
         </div>
         <!-- Collapsible content -->
 
