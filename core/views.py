@@ -369,7 +369,7 @@ class HomeView(ListView):
             print(result_list)
             object_list = []
             for each in result_list:
-                new_item = Item(title=each['title'],price=each['price'],discount_price=each['discount_price'],label=each['label'],slug=each['slug'],description=each['description'],image=each['image'],total=each['total'])
+                new_item = Item(title=each['title'],price=each['price'],discount_price=each['discount_price'],label=each['label'],slug=each['slug'],description=each['description'],image=each['image'],total=each['total'],timesAddedToCart=each['timesAddedToCart'])
                 object_list.append(new_item)
             print(object_list)
         else:

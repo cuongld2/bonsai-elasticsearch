@@ -133,6 +133,9 @@ def search(title):
         #     es.index(index="item", id=i, body=doc)
     if title:
         query_body = {
+            "sort" : [
+    { "timesAddedToCart" : "desc" }
+  ],
   "query": {
       "match": {
           "title": title

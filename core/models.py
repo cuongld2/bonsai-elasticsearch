@@ -43,6 +43,7 @@ class Item(models.Model):
     description = models.TextField()
     image = models.ImageField()
     total = models.IntegerField(default=1)
+    timesAddedToCart = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -53,6 +54,8 @@ class Item(models.Model):
         })
 
     def get_add_to_cart_url(self):
+        self.timesAddedToCart +=1
+        self.save()
         return reverse("core:add-to-cart", kwargs={
             'slug': self.slug
         })
