@@ -16,6 +16,7 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
 from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile
 from django.core.cache import cache
+from core.searchmodels import search
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -364,9 +365,16 @@ class HomeView(ListView):
     def get_queryset(self):
         query = self.request.GET.get('q')
         if query:
-            object_list = self.model.objects.filter(title__icontains=query)
+            result_list = search(query)
+            print(result_list)
+            object_list = []
+            for each in result_list:
+                new_item = Item(title=each['title'],price=each['price'],discount_price=each['discount_price'],label=each['label'],slug=each['slug'],description=each['description'],image=each['image'],total=each['total'])
+                object_list.append(new_item)
+            print(object_list)
         else:
             object_list = self.model.objects.all()
+            print(object_list)
         return object_list
 
 

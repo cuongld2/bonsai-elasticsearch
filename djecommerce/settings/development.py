@@ -40,7 +40,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
 }
 
 STRIPE_PUBLIC_KEY = config('STRIPE_TEST_PUBLIC_KEY')
@@ -59,3 +59,7 @@ CACHES = {
 
 # Cache time to live is 15 minutes.
 CACHE_TTL = 60 * 15
+ELASTICSEARCH_DSL={    
+    'default': {
+        'hosts': 'elasticsearch://6uqzlv9wjb:5owjd765b0@donaldle-search-4678694375.us-east-1.bonsaisearch.net:443'
+    },}
