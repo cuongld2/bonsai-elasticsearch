@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Sum
 from django.shortcuts import reverse
 from django_countries.fields import CountryField
+from core.searchmodels import index
 
 CATEGORY_CHOICES = (
     ('S', 'Shirt'),
@@ -56,6 +57,7 @@ class Item(models.Model):
     def get_add_to_cart_url(self):
         self.timesAddedToCart +=1
         self.save()
+        index()
         return reverse("core:add-to-cart", kwargs={
             'slug': self.slug
         })

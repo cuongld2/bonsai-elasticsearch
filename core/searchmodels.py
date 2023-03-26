@@ -50,49 +50,54 @@ def select_task_by_priority(conn, priority):
     for row in rows:
         print(row)
 
+bonsai = os.environ['BONSAI_URL']
+auth = re.search('https\:\/\/(.*)\@', bonsai).group(1).split(':')
+host = bonsai.replace('https://%s:%s@' % (auth[0], auth[1]), '')
 
-# Parse the auth and host from env:
+# optional port
+match = re.search('(:\d+)', host)
+if match:
+    p = match.group(0)
+    host = host.replace(p, '')
+    port = int(p.split(':')[1])
+else:
+    port=443
+
+# Connect to cluster over SSL using auth for best security:
+es_header = [{
+'host': host,
+'port': port,
+'use_ssl': True,
+'http_auth': (auth[0],auth[1])
+}]
+
+# Instantiate the new Elasticsearch connection:
+es = Elasticsearch(es_header)
+es.ping()
+
 
 def search(title):
-    
 
-    bonsai = os.environ['BONSAI_URL']
-    auth = re.search('https\:\/\/(.*)\@', bonsai).group(1).split(':')
-    host = bonsai.replace('https://%s:%s@' % (auth[0], auth[1]), '')
-
-    # optional port
-    match = re.search('(:\d+)', host)
-    if match:
-        p = match.group(0)
-        host = host.replace(p, '')
-        port = int(p.split(':')[1])
+    if title:
+        query_body = {
+            "sort" : [
+    { "timesAddedToCart" : "desc" }
+  ],
+  "query": {
+      "wildcard": {
+          "title":{"value":"*"+title+"*"}
+      }
+  }
+}
     else:
-        port=443
+        query_body=None
+    list_result=[]
+    for each in (es.search(index="item",body=query_body)['hits'])['hits']:
+        list_result.append(each['_source'])
+    return list_result
 
-    # Connect to cluster over SSL using auth for best security:
-    es_header = [{
-    'host': host,
-    'port': port,
-    'use_ssl': True,
-    'http_auth': (auth[0],auth[1])
-    }]
-
-    # Instantiate the new Elasticsearch connection:
-    es = Elasticsearch(es_header)
-
-    # Verify that Python can talk to Bonsai (optional):
-    es.ping()
-
-    # es.index(index='lord-of-the-rings',
-    #  document={
-    #   'character': 'Aragon',
-    #   'quote': 'It is not this day.'
-    #  })
-
+def index():
     database = "db.sqlite3"
-    print(database)
-
-    # create a database connection
     conn = create_connection(database)
     mappings = {
         "mappings": {
@@ -106,45 +111,30 @@ def search(title):
             "slug": {"type": "text"},
             "description": {"type": "text"},
             "image": {"type": "text"},
-            "total": {"type": "integer"}
+            "total": {"type": "integer"},
+            "timesAddedToCart":{"type":"integer"}
     }
 }
     }
 
-    # es.indices.delete(index="item")
-    # es.indices.create(index="item", body=mappings)
-    # with conn:
-        # print("1. Query all tasks")
-        # rows = select_all_items(conn)
-        # for i, row in enumerate(rows):
-        #     doc = {
-        #     "id": row[0],
-        #     "title": row[1],
-        #     "price": row[2],
-        #     "discount_price": row[3],
-        #     "category": row[4],
-        #     "label": row[5],
-        #     "slug": row[6],
-        #     "description": row[7],
-        #     "image": row[8],
-        #     "total": row[9],
-        #     }
+    es.indices.delete(index="item")
+    es.indices.create(index="item", body=mappings)
+    with conn:
+        print("1. Query all tasks")
+        rows = select_all_items(conn)
+        for i, row in enumerate(rows):
+            doc = {
+            "id": row[0],
+            "title": row[1],
+            "price": row[2],
+            "discount_price": row[3],
+            "category": row[4],
+            "label": row[5],
+            "slug": row[6],
+            "description": row[7],
+            "image": row[8],
+            "total": row[9],
+            "timesAddedToCart":row[10]
+            }
             
-        #     es.index(index="item", id=i, body=doc)
-    if title:
-        query_body = {
-            "sort" : [
-    { "timesAddedToCart" : "desc" }
-  ],
-  "query": {
-      "match": {
-          "title": title
-      }
-  }
-}
-    else:
-        query_body=None
-    list_result=[]
-    for each in (es.search(index="item",body=query_body)['hits'])['hits']:
-        list_result.append(each['_source'])
-    return list_result
+            es.index(index="item", id=i, body=doc)
