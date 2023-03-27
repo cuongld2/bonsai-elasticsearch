@@ -35,21 +35,6 @@ def select_all_items(conn):
 
     return rows
 
-def select_task_by_priority(conn, priority):
-    """
-    Query tasks by priority
-    :param conn: the Connection object
-    :param priority:
-    :return:
-    """
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM tasks WHERE priority=?", (priority,))
-
-    rows = cur.fetchall()
-
-    for row in rows:
-        print(row)
-
 bonsai = os.environ['BONSAI_URL']
 auth = re.search('https\:\/\/(.*)\@', bonsai).group(1).split(':')
 host = bonsai.replace('https://%s:%s@' % (auth[0], auth[1]), '')
@@ -120,7 +105,6 @@ def index():
     es.indices.delete(index="item")
     es.indices.create(index="item", body=mappings)
     with conn:
-        print("1. Query all tasks")
         rows = select_all_items(conn)
         for i, row in enumerate(rows):
             doc = {
