@@ -102,7 +102,8 @@ def index():
 }
     }
 
-    es.indices.delete(index="item")
+    if es.indices.exists(index="item"):
+        es.indices.delete(index="item")
     es.indices.create(index="item", body=mappings)
     with conn:
         rows = select_all_items(conn)
