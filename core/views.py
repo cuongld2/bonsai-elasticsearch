@@ -17,6 +17,7 @@ from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
 from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile
 from django.core.cache import cache
 from core.searchmodels import search
+from core.searchmodels import index
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -363,6 +364,7 @@ class HomeView(ListView):
     template_name = "home.html"
 
     def get_queryset(self):
+        index()
         query = self.request.GET.get('q')
         if query:
             result_list = search(query)
